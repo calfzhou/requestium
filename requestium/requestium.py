@@ -1,5 +1,4 @@
 import os
-import requests
 import tempfile
 import time
 import tldextract
@@ -13,8 +12,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from .sessions import RequestsSessionEx
 
-class Session(requests.Session):
+
+class Session(RequestsSessionEx):
     """Class that adds a Selenium Webdriver and helper methods to a  Requests Session
 
     This session class is a normal Requests Session that has the ability to switch back
