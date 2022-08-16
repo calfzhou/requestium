@@ -1,4 +1,5 @@
 from .cookies import ExpireOkCookiePolicy, RequestsMozillaCookieJar
+from .sessions import RequestsSessionEx
 from .requestium import Session  # noqa: F401
 
 from selenium.common import exceptions  # noqa: F401
