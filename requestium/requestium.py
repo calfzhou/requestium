@@ -14,6 +14,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from .sessions import RequestsSessionEx
 
+DEFAULT_WEBDRIVERS = {
+    'chrome': 'chromedriver',
+    'chrome-headless': 'chromedriver',
+    'phantomjs': 'phantomjs',
+    'firefox': 'geckodriver',
+}
+
 
 class Session(RequestsSessionEx):
     """Class that adds a Selenium Webdriver and helper methods to a  Requests Session
@@ -30,6 +37,9 @@ class Session(RequestsSessionEx):
 
     def __init__(self, webdriver_path=None, browser=None, default_timeout=5, webdriver_options={}, driver=None):
         super(Session, self).__init__()
+        if webdriver_path is None and browser is not None:
+            webdriver_path = DEFAULT_WEBDRIVERS.get(browser)
+
         self.webdriver_path = webdriver_path
         self.default_timeout = default_timeout
         self.webdriver_options = webdriver_options
