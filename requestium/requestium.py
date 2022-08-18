@@ -47,14 +47,12 @@ class Session(RequestsSessionEx):
         self._last_requests_url = None
 
         if self._driver is None:
-            if browser == 'phantomjs':
-                self._driver_initializer = self._start_phantomjs_browser
-            elif browser == 'chrome':
+            if browser == 'chrome':
                 self._driver_initializer = self._start_chrome_browser
             elif browser == 'chrome-headless':
                 self._driver_initializer = self._start_chrome_headless_browser
             else:
-                raise ValueError('Invalid Argument: browser must be chrome or phantomjs, not: "{}"'.format(browser))
+                raise ValueError('Invalid Argument: browser must be chrome or chrome-headless, not: "{}"'.format(browser))
         else:
             for name in DriverMixin.__dict__:
                 name_private = name.startswith('__') and name.endswith('__')
@@ -70,34 +68,6 @@ class Session(RequestsSessionEx):
         if self._driver is None:
             self._driver = self._driver_initializer()
         return self._driver
-
-    def _start_phantomjs_browser(self):
-        # Add headers to driver
-        for key, value in self.headers.items():
-            # Manually setting Accept-Encoding to anything breaks it for some reason, so we skip it
-            if key == 'Accept-Encoding':
-                continue
-
-            webdriver.DesiredCapabilities.PHANTOMJS[
-                'phantomjs.page.customHeaders.{}'.format(key)] = value
-
-        # Set browser options
-        service_args = ['--load-images=no', '--disk-cache=true']
-
-        # Add proxies to driver
-        if self.proxies:
-            session_proxy = self.proxies['https'] or self.proxies['http']
-            proxy_user_and_pass = session_proxy.split('@')[0].split('://')[1]
-            proxy_ip_address = session_proxy.split('@')[1]
-            service_args.append('--proxy=' + proxy_ip_address)
-            service_args.append('--proxy-auth=' + proxy_user_and_pass)
-
-        # Create driver process
-        service_log_filename = os.path.join(tempfile.gettempdir(), 'ghostdriver.log')
-        return RequestiumPhantomJS(executable_path=self.webdriver_path,
-                                   service_log_path=service_log_filename,
-                                   service_args=service_args,
-                                   default_timeout=self.default_timeout)
 
     def _start_chrome_browser(self):
         # TODO transfer of proxies and headers: Not supported by chromedriver atm.
@@ -460,10 +430,6 @@ def _ensure_click(self):
             exception_message
         )
     )
-
-
-class RequestiumPhantomJS(DriverMixin, webdriver.PhantomJS):
-    pass
 
 
 class RequestiumChrome(DriverMixin, webdriver.Chrome):
